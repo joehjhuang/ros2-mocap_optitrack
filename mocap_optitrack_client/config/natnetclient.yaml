@@ -11,7 +11,8 @@ natnet_client:
     # If the NatNet server is hosted on another machine, please use the IP address of the other machine
     # make sure to deactivate the Windows Firewall and check with ping if the IP is reachable
     # Also, the IP of the correct network adapter needs to be selected in Motive
-    server_address: "192.168.4.31"
+    server_address: "192.168.1.32"
+    local_address: "192.168.1.40"
     # Type of the connection: 0 = multicast, 1 = unicast.
     connection_type: 0 #default value: 0
     # Multicast address of the server
@@ -23,7 +24,7 @@ natnet_client:
     # Topic where data is published
     pub_topic: "mocap_rigid_bodies"
     # wether to start the recording in Motive
-    record: true
+    record: false
     # by default (with an empty string) the date and time will be used as name of the take
     take_name: ""
   

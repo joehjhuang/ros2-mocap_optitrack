@@ -23,6 +23,11 @@ MoCapNatNetClient::MoCapNatNetClient(MoCapPublisher* _moCapPublisher)
     strcpy(serverAddress, serverAddress_s.c_str());
     g_connectParams.serverAddress = (const char*) serverAddress;
 
+    std::string localAddress_s = moCapPublisher->getLocalAddress();
+    char* localAddress = (char*) malloc(localAddress_s.length()*sizeof(char));
+    strcpy(localAddress, localAddress_s.c_str());
+    g_connectParams.localAddress = (const char*) localAddress;
+
     std::string multiCastAddress_s = moCapPublisher->getMulticastAddress();
     char* multiCastAddress = (char*) malloc(multiCastAddress_s.length()*sizeof(char));
     strcpy(multiCastAddress, multiCastAddress_s.c_str());

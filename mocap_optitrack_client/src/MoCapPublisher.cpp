@@ -144,6 +144,13 @@ std::string MoCapPublisher::getServerAddress()
   return addr_;
 }
 
+std::string MoCapPublisher::getLocalAddress()
+{
+  std::string addr_;
+  this->get_parameter("local_address", addr_);
+  return addr_;
+}
+
 int MoCapPublisher::getConnectionType()
 {
   int type_ = 0;

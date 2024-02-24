@@ -31,6 +31,7 @@ public:
  
     // Getters
     std::string getServerAddress();
+    std::string getLocalAddress();
     int getConnectionType();
     std::string getMulticastAddress();
     uint16_t getServerCommandPort();
