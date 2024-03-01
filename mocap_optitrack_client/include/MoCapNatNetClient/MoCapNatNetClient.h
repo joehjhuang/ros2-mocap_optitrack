@@ -69,6 +69,7 @@ public:
 
     //Methods to forward messages to the ROS2 system
     void sendRigidBodyMessage(double cameraMidExposureSecsSinceEpoch, sRigidBodyData* bodies, int nRigidBodies);
+    void sendUnlabeledMarkersMessage(double cameraMidExposureSecsSinceEpoch, sMarker* markers, int nLabeledMarkers);
 
     
 };

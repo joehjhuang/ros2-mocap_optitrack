@@ -254,6 +254,7 @@ void NATNET_CALLCONV dataFrameHandler(sFrameOfMocapData* data, void* pUserData)
     //
 	// Rigid Bodies
     pClient->sendRigidBodyMessage(cameraMidExposureSecsSinceEpoch, data->RigidBodies, data->nRigidBodies);
+    pClient->sendUnlabeledMarkersMessage(cameraMidExposureSecsSinceEpoch, data->LabeledMarkers, data->nLabeledMarkers);
     //
     //NOTE : from below is just logging...
 	// Skeletons
@@ -359,6 +360,12 @@ void NATNET_CALLCONV dataFrameHandler(sFrameOfMocapData* data, void* pUserData)
 void MoCapNatNetClient::sendRigidBodyMessage(double cameraMidExposureSecsSinceEpoch, sRigidBodyData* bodies, int nRigidBodies)
 {
     this->moCapPublisher->sendRigidBodyMessage(cameraMidExposureSecsSinceEpoch, bodies, nRigidBodies);
+}
+
+// Method responsible of forwarding messages of unlabeled markers data to the ROS2 publisher
+void MoCapNatNetClient::sendUnlabeledMarkersMessage(double cameraMidExposureSecsSinceEpoch, sMarker* markers, int nLabeledMarkers)
+{
+    this->moCapPublisher->sendUnlabeledMarkersMessage(cameraMidExposureSecsSinceEpoch, markers, nLabeledMarkers);
 }
 
 

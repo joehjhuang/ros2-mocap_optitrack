@@ -31,14 +31,18 @@ MoCapPublisher::MoCapPublisher(): Node("natnet_client")
   this->declare_parameter<std::string>("multi_cast_address", "239.255.42.99");
   this->declare_parameter<uint16_t>("server_command_port", 1510);
   this->declare_parameter<uint16_t>("server_data_port", 1511);
-  this->declare_parameter<std::string>("pub_topic", "rigid_body_topic");
+  this->declare_parameter<std::string>("rigid_bodies_topic", "rigid_bodies_topic");
+  this->declare_parameter<std::string>("unlabeled_markers_topic", "unlabeled_markers_topic");
   this->declare_parameter<bool>("record", true);
   this->declare_parameter<std::string>("take_name", "");
   //
   //Create the publisher
-  std::string topic_;
-  this->get_parameter("pub_topic", topic_);
-  this->publisher_ = this->create_publisher<mocap_optitrack_interfaces::msg::RigidBodyArray>(topic_.c_str(), 10);
+  std::string rigid_bodies_topic_;
+  this->get_parameter("rigid_bodies_topic", rigid_bodies_topic_);
+  this->rigid_bodies_publisher_ = this->create_publisher<mocap_optitrack_interfaces::msg::RigidBodyArray>(rigid_bodies_topic_.c_str(), 10);
+  std::string unlabeled_markers_topic_;
+  this->get_parameter("unlabeled_markers_topic", unlabeled_markers_topic_);
+  this->unlabeled_markers_publisher_ = this->create_publisher<geometry_msgs::msg::PoseArray>(unlabeled_markers_topic_.c_str(), 10);
   //
   //Just for testing purposes send make messages every 500ms
   //this->timer_ = this->create_wall_timer(500ms, std::bind(&MoCapPublisher::sendFakeMessage, this));
@@ -50,6 +54,37 @@ MoCapPublisher::MoCapPublisher(): Node("natnet_client")
   std::string address_;
   this->get_parameter("server_address", address_);
   RCLCPP_INFO(this->get_logger(),address_.c_str());
+}
+
+// Method that send over the ROS network the data of a set of markers
+void MoCapPublisher::sendUnlabeledMarkersMessage(double cameraMidExposureSecsSinceEpoch, sMarker* markers_ptr, int nLabeledMarkers)
+{
+  // Convert seconds since epoch to ROS time
+  int64_t cameraMidExposureNanoSecsSinceEpoch = int64_t(cameraMidExposureSecsSinceEpoch * 1e9);
+  rclcpp::Time cameraMidExposureTime = rclcpp::Time(cameraMidExposureNanoSecsSinceEpoch);
+
+  //Instanciate variables
+  geometry_msgs::msg::PoseArray msg;
+  msg.header.stamp = cameraMidExposureTime;
+
+  for (int i = 0; i < nLabeledMarkers; i++)
+  {
+    RCLCPP_INFO(this->get_logger(), "Marker %d [x=%3.2f  y=%3.2f  z=%3.2f]\n", i, markers_ptr[i].x, markers_ptr[i].y, markers_ptr[i].z);
+    bool bUnlabeled = ((markers_ptr[i].params & 0x10) != 0);
+    if (bUnlabeled)
+    {
+      geometry_msgs::msg::Pose pose;
+      pose.position.x = markers_ptr[i].x;
+      pose.position.y = markers_ptr[i].y;
+      pose.position.z = markers_ptr[i].z;
+      pose.orientation.x = 0.0;
+      pose.orientation.y = 0.0;
+      pose.orientation.z = 0.0;
+      pose.orientation.w = 1.0;
+      msg.poses.push_back(pose);
+    }
+  }
+  unlabeled_markers_publisher_->publish(msg);
 }
 
 // Method that send over the ROS network the data of a rigid body
@@ -108,7 +143,7 @@ void MoCapPublisher::sendRigidBodyMessage(double cameraMidExposureSecsSinceEpoch
       msg.rigid_bodies.push_back(rb);
   }
   // Publish the message.
-  publisher_->publish(msg);
+  rigid_bodies_publisher_->publish(msg);
 }
 
 //Method used to send fake messages to the client
